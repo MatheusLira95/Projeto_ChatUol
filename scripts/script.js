@@ -1,42 +1,38 @@
 //ENTRANDO NO CHAT
-const login = prompt("Olá seja bem-vindo! Qual seu nome?");
+let login;
+let user;
+let messages = [];
+logIn();
 
-const user = {name: login};
-console.log(user);
-const promiseLogin = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/participants', user)
-promiseLogin.then(successlogin);
+function logIn(){
+    login = prompt("Olá seja bem-vindo! Qual seu nome?");
+    user = {name: login};
+    const promiseLogin = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/participants', user);
+    promiseLogin.then(successlogin);
+    promiseLogin.catch(logIn)
+}
 
-function successlogin(response){
-    console.log(response)
-};
-
-//setInterval(logedIn, 5000);
-logedIn();
+function successlogin(){
+    setInterval(logedIn, 5000);
+    setInterval(receivemsg, 3000);
+}
 function logedIn(){
     const promiseLogedIn = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/status', user);
-    promiseLogedIn.then(successlogin);
-    }
+}
 
-
-//PEDINDO MENSAGENS PARA SERVIDOR
-let messages = [];
-//{from: "", to: "",text: "",type: ""}
-receivemsg();
 function receivemsg(){
     const promiseMsg = axios.get('https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/messages');
     promiseMsg.then(populateChat);
     promiseMsg.catch(failed)
 }
-
+//lembrar de tirar
 function failed(){
     alert('Gave bad');
 }
 
 function populateChat(msgs){
     const ulChat = document.querySelector(".chat-msg");
-    console.log(msgs.data);
     messages = msgs.data;
-    console.log(messages);
     for(let i = 0; i < messages.length; i++ ){
         if(messages[i].type === "message"){
             ulChat.innerHTML += `
@@ -56,7 +52,7 @@ function populateChat(msgs){
                 ${messages[i].text}
             </li>
             `;
-        }else if(messages[i].type === "private_message" ){
+        }else if(messages[i].type === "private_message" && messages[i].to === login){
             ulChat.innerHTML += `
             <li class="private-msg">
                 <span class="hour">(${messages[i].time})</span>
@@ -70,6 +66,18 @@ function populateChat(msgs){
     }
     const lastMessage = document.querySelector('.chat-msg li:last-child');
     lastMessage.scrollIntoView();
-
 }
 
+function sendMessage(){
+    const sentMessage = document.querySelector(".bottom-bar input").value;
+    const messageSent = {
+        from: login,
+        to: "Todos",
+        text: sentMessage,
+        type: "message" 
+    };
+    const promiseSent = axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/uol/messages', messageSent);
+    promiseSent.then(receivemsg);    
+}
+
+setInterval(receivemsg, 3000);
