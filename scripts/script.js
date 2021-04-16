@@ -56,7 +56,7 @@ function populateChat(msgs){
                 ${messages[i].text}
             </li>
             `;
-        }else if(messages[i].type === "private_message" && messages[i].to === login){
+        }else if(messages[i].type === "private_message" ){
             ulChat.innerHTML += `
             <li class="private-msg">
                 <span class="hour">(${messages[i].time})</span>
@@ -68,6 +68,8 @@ function populateChat(msgs){
             `;  
         }
     }
+    const lastMessage = document.querySelector('.chat-msg li:last-child');
+    lastMessage.scrollIntoView();
 
 }
 
